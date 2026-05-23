@@ -102,10 +102,26 @@ public class ImagePicker extends CordovaPlugin {
         return false;
     }
 
+    /**
+     * The runtime permission required to read images from the gallery.
+     * Android 13 (SDK 33, TIRAMISU) ignores READ_EXTERNAL_STORAGE for media access
+     * and requires the granular READ_MEDIA_IMAGES permission instead.
+     * On older versions READ_EXTERNAL_STORAGE is still the correct permission.
+     * (This plugin only queries MediaStore.Images on Android, so READ_MEDIA_VIDEO
+     * is intentionally not requested.)
+     */
+    @SuppressLint("InlinedApi")
+    private String getReadPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return Manifest.permission.READ_MEDIA_IMAGES;
+        }
+        return Manifest.permission.READ_EXTERNAL_STORAGE;
+    }
+
     @SuppressLint("InlinedApi")
     private boolean hasReadPermission() {
         return Build.VERSION.SDK_INT < 23 ||
-            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this.cordova.getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE);
+            PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this.cordova.getActivity(), getReadPermission());
     }
 
     @SuppressLint("InlinedApi")
@@ -113,7 +129,7 @@ public class ImagePicker extends CordovaPlugin {
         if (!hasReadPermission()) {
             ActivityCompat.requestPermissions(
                 this.cordova.getActivity(),
-                new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                new String[] {getReadPermission()},
                 PERMISSION_REQUEST_CODE);
         }
         // This method executes async and we seem to have no known way to receive the result
