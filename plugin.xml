@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
   xmlns:android="http://schemas.android.com/apk/res/android"
   id="community-cordova-plugin-image-picker"
-  version="4.0.3">
+  version="4.0.4">
 
     <name>ImagePicker</name>
 
@@ -95,6 +95,12 @@
 
     <!-- android -->
     <platform name="android">
+        <!-- The Android sources use AndroidX (androidx.appcompat / androidx.core).
+             Require AndroidX so the plugin compiles against a modern compileSdk;
+             otherwise the build fails and the plugin is dropped from
+             cordova_plugins.js (window.imagePicker becomes undefined). -->
+        <preference name="AndroidXEnabled" value="true" />
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="ImagePicker">
                 <param name="android-package" value="com.synconset.ImagePicker"/>
@@ -112,8 +118,8 @@
             <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
         </config-file>
 
-        <preference name="ANDROID_SUPPORT_V7_VERSION" default="27.+"/>
-        <framework src="com.android.support:appcompat-v7:$ANDROID_SUPPORT_V7_VERSION" />
+        <preference name="ANDROIDX_APPCOMPAT_VERSION" default="1.6.+"/>
+        <framework src="androidx.appcompat:appcompat:$ANDROIDX_APPCOMPAT_VERSION" />
 
         <source-file src="src/android/com/synconset/ImagePicker/ImagePicker.java" target-dir="src/com/synconset" />
         <source-file src="src/android/com/synconset/ImagePicker/FakeR.java" target-dir="src/com/synconset" />
